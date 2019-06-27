@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, TextInput} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, TextInput, Alert} from 'react-native';
 import {connect} from 'react-redux';
 import {login} from '../store/actions/user';
 
@@ -11,9 +11,14 @@ class Login extends Component {
         password: ''
     }
 
+    componentDidUpdate = prevProps => {
+        if (prevProps.isLoading && !this.props.isLoading) {
+            this.props.navigation.navigate('Profile');
+        }
+    }
+
     login = () => {
         this.props.onLogin({...this.state});
-        this.props.navigation.navigate('Profile');
     }
 
     render() {
@@ -34,12 +39,16 @@ class Login extends Component {
                     value={this.state.password}
                     onChangeText={password => this.setState({password})}
                 />
-                <TouchableOpacity onPress={this.login} style={styles.buttom}>
+                <TouchableOpacity
+                    onPress={this.login}
+                    style={[styles.buttom, this.props.isLoading ? styles.buttomDisabled : null]}
+                    disabled={this.props.isLoading}>
                     <Text style={styles.buttomText}>Login</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => {
-                    this.props.navigation.navigate('Register')
-                }} style={styles.buttom}>
+                <TouchableOpacity
+                    onPress={() => { this.props.navigation.navigate('Register') }}
+                    style={[styles.buttom, this.props.isLoading ? styles.buttomDisabled : null]}
+                    disabled={this.props.isLoading}>
                     <Text style={styles.buttomText}>Criar nova conta...</Text>
                 </TouchableOpacity>
             </View>
@@ -63,6 +72,9 @@ const styles = StyleSheet.create({
         fontSize: 20,
         color: '#fff'
     },
+    buttomDisabled: {
+        backgroundColor: '#AAA'
+    },
     input: {
         marginTop: 20,
         width: '90%',
@@ -73,10 +85,16 @@ const styles = StyleSheet.create({
     }
 });
 
+const mapStateToProps = ({user}) => {
+    return {
+        isLoading: user.isLoading
+    }
+}
+
 const mapDispatchToProps = dispatch => {
     return {
         onLogin: user => dispatch(login(user))
     }
 }
 
-export default connect(null, mapDispatchToProps)(Login);
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

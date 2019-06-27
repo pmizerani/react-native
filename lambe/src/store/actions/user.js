@@ -1,6 +1,11 @@
-import {USER_LOGGED_IN, USER_LOGGED_OUT} from "./actionTypes";
+import {USER_LOGGED_IN, USER_LOGGED_OUT, LOADING_USER, USER_LOADED} from "./actionTypes";
+import axios from 'axios';
+import {setMessage} from "./message";
 
-export const login = (user) => {
+const authBaseURL = 'https://www.googleapis.com/identitytoolkit/v3/relyingparty';
+const API_KEY = 'AIzaSyCH7t34oDS7Q-GsphsYUg9tNOyHD8E7EtE';
+
+export const userLogged = (user) => {
     return {
         type: USER_LOGGED_IN,
         payload: user
@@ -10,5 +15,73 @@ export const login = (user) => {
 export const logout = () => {
     return {
         type: USER_LOGGED_OUT
+    }
+}
+
+export const createUser = (user) => {
+    return dispatch => {
+        axios.post(`${authBaseURL}/signupNewUser?key=${API_KEY}`, {
+            email: user.email,
+            password: user.password,
+            returnSecureToken: true
+        })
+        .then(res => {
+            if (res.data.localId) {
+                dispatch(loadingUser());
+                axios.put(`/users/${res.data.localId}.json`, {
+                    name: user.name
+                }).then(() => {
+                    dispatch(login(user));
+                }).catch(err => {
+                    dispatch(setMessage({title: 'Erro', text: 'Ocorreu um erro inesperado.'}));
+                })
+            }
+        }).catch(err => console.log(err));
+    }
+}
+
+export const loadingUser = () => {
+    return {
+        type: LOADING_USER
+    }
+}
+
+export const userLoaded = () => {
+    return {
+        type: USER_LOADED
+    }
+}
+
+export const login = user => {
+    return dispatch => {
+        dispatch(loadingUser());
+        axios.post(`${authBaseURL}/verifyPassword?key=${API_KEY}`, {
+            email: user.email,
+            password: user.password,
+            returnSecureToken: true
+        })
+        .then(res => {
+
+            if (res.data.localId) {
+                user.token = res.data.idToken;
+                axios.get(`/users/${res.data.localId}.json`)
+                    .then(res => {
+
+                        delete user.password;
+                        user.name = res.data.name;
+                        dispatch(userLogged(user));
+                        dispatch(userLoaded());
+
+                    }).catch(err => {
+                        console.log(err);
+
+                    });
+            }
+
+        }).catch(err => {
+            console.log(err);
+            dispatch(setMessage({title: 'Ops :(', text: 'Email/Senha incorretos'}));
+
+        });
     }
 }

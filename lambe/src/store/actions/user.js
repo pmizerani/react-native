@@ -2,8 +2,8 @@ import {USER_LOGGED_IN, USER_LOGGED_OUT, LOADING_USER, USER_LOADED} from "./acti
 import axios from 'axios';
 import {setMessage} from "./message";
 
-const authBaseURL = 'https://www.googleapis.com/identitytoolkit/v3/relyingparty';
-const API_KEY = 'AIzaSyCH7t34oDS7Q-GsphsYUg9tNOyHD8E7EtE';
+const authBaseURL = 'authurL';
+const API_KEY = 'API_KEY';
 
 export const userLogged = (user) => {
     return {

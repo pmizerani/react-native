@@ -6,7 +6,7 @@ import {name as appName} from './app.json';
 import storeConfig from './src/store/storeConfig';
 import axios from 'axios';
 
-axios.defaults.baseURL = 'https://lambe-185b6.firebaseio.com/';
+axios.defaults.baseURL = 'HOST_FIREBASE';
 
 const store = storeConfig();
 

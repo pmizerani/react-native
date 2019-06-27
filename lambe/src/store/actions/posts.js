@@ -10,7 +10,7 @@ export const addPost = post => {
 
         axios({
             url: 'uploadImage',
-            baseURL: 'https://us-central1-lambe-185b6.cloudfunctions.net',
+            baseURL: 'baseurl',
             method: 'post',
             data: {
                 image: post.image.base64
